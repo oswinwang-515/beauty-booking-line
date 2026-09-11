@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  >
+
+  <title>挽臉工作室預約</title>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+      background: #f7f4ef;
+      color: #333;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .card {
+      background: white;
+
+      border-radius: 22px;
+
+      padding: 30px 22px;
+
+      box-shadow:
+        0 4px 18px
+        rgba(0,0,0,0.07);
+
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 26px;
+    }
+
+    .message {
+      margin-top: 20px;
+
+      color: #666;
+
+      line-height: 1.7;
+
+      font-size: 16px;
+    }
+
+    .error {
+      color: #a33;
+    }
+
+    .spinner {
+      width: 42px;
+      height: 42px;
+
+      margin: 26px auto;
+
+      border: 4px solid #eee;
+      border-top-color: #5e9477;
+      border-radius: 50%;
+
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="card">
+
+    <h1>
+      挽臉工作室預約
+    </h1>
+
+    <div class="spinner"></div>
+
+    <div
+      id="message"
+      class="message"
+    >
+      正在連接 LINE...
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+  /*
+   * 你的 LIFF ID
+   */
+  const LIFF_ID =
+    '2011548542-hgz3StN4';
+
+
+  /*
+   * 你的 Apps Script /exec 網址
+   *
+   * 請把下面換成「完整網址」
+   */
+  const BOOKING_URL =
+    'https://script.google.com/macros/s/AKfycbyI8HWdEq_KFnRyjbYDc5fjvDL1cYIVjwKytSulFBRsK7BDQsiwg737ULlMb3NEC5rTvg/exec';
+
+
+  async function start() {
+
+    const message =
+      document.getElementById(
+        'message'
+      );
+
+
+    try {
+
+      message.textContent =
+        '正在初始化 LINE...';
+
+
+      await liff.init({
+        liffId: LIFF_ID
+      });
+
+
+      if (!liff.isLoggedIn()) {
+
+        message.textContent =
+          '正在登入 LINE...';
+
+
+        liff.login();
+
+        return;
+
+      }
+
+
+      message.textContent =
+        'LINE 登入成功，正在取得身分...';
+
+
+      const idToken =
+        liff.getIDToken();
+
+
+      const decoded =
+        liff.getDecodedIDToken();
+
+
+      if (!idToken) {
+
+        throw new Error(
+          '無法取得 LINE ID Token'
+        );
+
+      }
+
+
+      if (!decoded) {
+
+        throw new Error(
+          '無法取得 LINE 使用者資料'
+        );
+
+      }
+
+
+      message.textContent =
+        '登入成功：' +
+        (decoded.name || 'LINE 使用者') +
+        '，正在前往預約頁...';
+
+
+      /*
+       * Token 放在 URL hash 裡。
+       * hash 不會送到 Google Web Server，
+       * 預約頁 JavaScript 再自行讀取。
+       */
+      const targetUrl =
+        BOOKING_URL +
+        '#id_token=' +
+        encodeURIComponent(
+          idToken
+        );
+
+
+      window.location.replace(
+        targetUrl
+      );
+
+    }
+    catch (error) {
+
+      console.error(error);
+
+
+      message.classList.add(
+        'error'
+      );
+
+
+      message.textContent =
+        'LINE 登入失敗：' +
+        (
+          error.message ||
+          String(error)
+        );
+
+    }
+
+  }
+
+
+  start();
+
+</script>
+
+</body>
+</html>
