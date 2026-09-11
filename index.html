@@ -19,7 +19,6 @@
 
     body {
       margin: 0;
-
       font-family:
         -apple-system,
         BlinkMacSystemFont,
@@ -38,16 +37,12 @@
 
     .card {
       background: white;
-
       border-radius: 22px;
-
       padding: 30px 22px;
+      text-align: center;
 
       box-shadow:
-        0 4px 18px
-        rgba(0,0,0,0.07);
-
-      text-align: center;
+        0 4px 18px rgba(0,0,0,0.07);
     }
 
     h1 {
@@ -57,12 +52,8 @@
 
     .message {
       margin-top: 20px;
-
       color: #666;
-
       line-height: 1.7;
-
-      font-size: 16px;
     }
 
     .error {
@@ -72,7 +63,6 @@
     .spinner {
       width: 42px;
       height: 42px;
-
       margin: 26px auto;
 
       border: 4px solid #eee;
@@ -96,9 +86,7 @@
 
   <div class="card">
 
-    <h1>
-      挽臉工作室預約
-    </h1>
+    <h1>挽臉工作室預約</h1>
 
     <div class="spinner"></div>
 
@@ -113,31 +101,23 @@
 
 </div>
 
-
 <script>
 
-  /*
-   * 你的 LIFF ID
-   */
   const LIFF_ID =
     '2011548542-hgz3StN4';
 
 
   /*
-   * 你的 Apps Script /exec 網址
-   *
-   * 請把下面換成「完整網址」
+   * ↓↓↓ 這裡請放你完整的 Apps Script /exec 網址 ↓↓↓
    */
   const BOOKING_URL =
-    'https://script.google.com/macros/s/AKfycbyI8HWdEq_KFnRyjbYDc5fjvDL1cYIVjwKytSulFBRsK7BDQsiwg737ULlMb3NEC5rTvg/exec';
+    '你的完整AppsScript網址';
 
 
   async function start() {
 
     const message =
-      document.getElementById(
-        'message'
-      );
+      document.getElementById('message');
 
 
     try {
@@ -156,11 +136,9 @@
         message.textContent =
           '正在登入 LINE...';
 
-
         liff.login();
 
         return;
-
       }
 
 
@@ -181,7 +159,6 @@
         throw new Error(
           '無法取得 LINE ID Token'
         );
-
       }
 
 
@@ -190,7 +167,6 @@
         throw new Error(
           '無法取得 LINE 使用者資料'
         );
-
       }
 
 
@@ -201,32 +177,54 @@
 
 
       /*
-       * Token 放在 URL hash 裡。
-       * hash 不會送到 Google Web Server，
-       * 預約頁 JavaScript 再自行讀取。
+       * 用 POST 把 Token 傳給 Apps Script
+       * 不再使用網址 #id_token
        */
-      const targetUrl =
-        BOOKING_URL +
-        '#id_token=' +
-        encodeURIComponent(
-          idToken
-        );
+
+      const form =
+        document.createElement('form');
+
+      form.method =
+        'POST';
+
+      form.action =
+        BOOKING_URL;
 
 
-      window.location.replace(
-        targetUrl
+      const tokenInput =
+        document.createElement('input');
+
+      tokenInput.type =
+        'hidden';
+
+      tokenInput.name =
+        'id_token';
+
+      tokenInput.value =
+        idToken;
+
+
+      form.appendChild(
+        tokenInput
       );
 
+
+      document.body.appendChild(
+        form
+      );
+
+
+      form.submit();
+
     }
+
     catch (error) {
 
       console.error(error);
 
-
       message.classList.add(
         'error'
       );
-
 
       message.textContent =
         'LINE 登入失敗：' +
@@ -234,7 +232,6 @@
           error.message ||
           String(error)
         );
-
     }
 
   }
